@@ -25,8 +25,24 @@ let Persons = [
     }
 ]
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
+app.use(express.json())
 app.get('/api/persons', (req, res) => {
     return res.json(Persons);
+})
+
+app.post('/api/persons', (req, res) => {
+    const body = req.body;
+    const id = getRandomInt(500);
+    Persons.push({
+        id: id,
+        name: body.name,
+        number: body.number
+    })
+    return res.status(200).json({ msg: "Person added successfully" })
 })
 
 app.get("/api/persons/:id", (req, res) => {
