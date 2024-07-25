@@ -26,12 +26,22 @@ let Persons = [
     }
 ]
 
+
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
-
-app.use(morgan('tiny'));
 app.use(express.json());
+morgan.token('data', function (req, res) { const data = JSON.stringify(req.body); if (data === "{}") { return "" } return data })
+app.use(morgan(function (tokens, req, res) {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        tokens.data(req, res),
+    ].join(' ')
+}))
 app.get('/api/persons', (req, res) => {
     return res.json(Persons);
 })
