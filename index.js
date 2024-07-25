@@ -1,4 +1,5 @@
 const express = require('express');
+var morgan = require('morgan')
 const app = express();
 const PORT = 3001
 
@@ -29,7 +30,8 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-app.use(express.json())
+app.use(morgan('tiny'));
+app.use(express.json());
 app.get('/api/persons', (req, res) => {
     return res.json(Persons);
 })
@@ -37,11 +39,20 @@ app.get('/api/persons', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const body = req.body;
     const id = getRandomInt(500);
+
+    if (!body.name) {
+        return res.status(400).json({ error: "name missing" })
+    }
+    else if (!body.number) {
+        return res.status(400).json({ error: "Number missing" })
+    }
+
     Persons.push({
         id: id,
         name: body.name,
         number: body.number
     })
+
     return res.status(200).json({ msg: "Person added successfully" })
 })
 
