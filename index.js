@@ -31,6 +31,7 @@ let Persons = [
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
+app.use(express.static('dist'));
 app.use(express.json());
 app.use(cors());
 morgan.token('data', function (req, res) { const data = JSON.stringify(req.body); if (data === "{}") { return "" } return data })
@@ -65,7 +66,7 @@ app.post('/api/persons', (req, res) => {
         number: body.number
     })
 
-    return res.status(200).json({ msg: "Person added successfully" })
+    return res.status(200).json({ id: id, name: body.name, number: body.number })
 })
 
 app.get("/api/persons/:id", (req, res) => {
