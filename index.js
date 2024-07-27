@@ -1,5 +1,6 @@
 const express = require('express');
 var morgan = require('morgan')
+const cors = require('cors');
 const app = express();
 const PORT = 3001
 
@@ -31,6 +32,7 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 app.use(express.json());
+app.use(cors());
 morgan.token('data', function (req, res) { const data = JSON.stringify(req.body); if (data === "{}") { return "" } return data })
 app.use(morgan(function (tokens, req, res) {
     return [
