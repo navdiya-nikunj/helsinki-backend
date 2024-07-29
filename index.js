@@ -1,36 +1,12 @@
 const express = require('express');
+require('dotenv').config()
 var morgan = require('morgan')
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001
-
-let Persons = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
+const Person = require('./models/person');
 
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-}
 app.use(express.static('dist'));
 app.use(express.json());
 app.use(cors());
@@ -46,12 +22,11 @@ app.use(morgan(function (tokens, req, res) {
     ].join(' ')
 }))
 app.get('/api/persons', (req, res) => {
-    return res.json(Persons);
+    Person.find({}).then(persons => res.json(persons));
 })
 
 app.post('/api/persons', (req, res) => {
     const body = req.body;
-    const id = getRandomInt(500);
 
     if (!body.name) {
         return res.status(400).json({ error: "name missing" })
@@ -60,45 +35,48 @@ app.post('/api/persons', (req, res) => {
         return res.status(400).json({ error: "Number missing" })
     }
 
-    Persons.push({
-        id: id,
+    const newPerson = new Person({
         name: body.name,
         number: body.number
     })
 
-    return res.status(200).json({ id: id, name: body.name, number: body.number })
+    newPerson.save().then(result => {
+        res.json(result);
+    }).catch(() => {
+        res.status(404)
+    })
 })
 
-app.get("/api/persons/:id", (req, res) => {
-    const id = req.params.id;
-    const person = Persons.find((person) => person.id === id);
-    if (person) {
-        return res.json(person);
-    } else {
+// app.get("/api/persons/:id", (req, res) => {
+//     const id = req.params.id;
+//     const person = Persons.find((person) => person.id === id);
+//     if (person) {
+//         return res.json(person);
+//     } else {
 
-        return res.status(404).end();
-    }
-})
+//         return res.status(404).end();
+//     }
+// })
 
-app.delete("/api/persons/:id", (req, res) => {
-    const id = req.params.id;
-    const person = Persons.find((person) => person.id === id);
-    if (person) {
-        Persons = Persons.filter((person) => person.id !== id);
-        return res.json(person);
-    } else {
+// app.delete("/api/persons/:id", (req, res) => {
+//     const id = req.params.id;
+//     const person = Persons.find((person) => person.id === id);
+//     if (person) {
+//         Persons = Persons.filter((person) => person.id !== id);
+//         return res.json(person);
+//     } else {
 
-        return res.status(204).end();
-    }
-})
+//         return res.status(204).end();
+//     }
+// })
 
-app.get('/info', (req, res) => {
-    return res.send(`
-    <p>Phone book has info for ${Persons.length} people</p>
-    <br/>
-    <p>${new Date(Date.now()).toUTCString()}</p>
-    `)
-})
+// app.get('/info', (req, res) => {
+//     return res.send(`
+//     <p>Phone book has info for ${Persons.length} people</p>
+//     <br/>
+//     <p>${new Date(Date.now()).toUTCString()}</p>
+//     `)
+// })
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
