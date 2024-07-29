@@ -10,17 +10,7 @@ const Person = require('./models/person');
 app.use(express.static('dist'));
 app.use(express.json());
 
-const errorHandler = (error, request, response, next) => {
-    console.error(error.message)
 
-    if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'malformatted id' })
-    }
-
-    next(error)
-}
-
-app.use(errorHandler);
 
 app.use(cors());
 morgan.token('data', function (req, res) { const data = JSON.stringify(req.body); if (data === "{}") { return "" } return data })
@@ -85,6 +75,28 @@ app.delete("/api/persons/:id", (req, res, next) => {
 //     <p>${new Date(Date.now()).toUTCString()}</p>
 //     `)
 // })
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id;
+    const person = {
+        name: req.body.name,
+        number: req.body.number
+    }
+    Person.findByIdAndUpdate(id, person, { new: true })
+        .then(updatedPerson => res.json(updatedPerson))
+        .catch(err => next(err))
+})
+const errorHandler = (error, request, response, next) => {
+    console.error("Error:", error.message);
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
