@@ -68,13 +68,16 @@ app.delete("/api/persons/:id", (req, res, next) => {
     }).catch(err => next(err))
 })
 
-// app.get('/info', (req, res) => {
-//     return res.send(`
-//     <p>Phone book has info for ${Persons.length} people</p>
-//     <br/>
-//     <p>${new Date(Date.now()).toUTCString()}</p>
-//     `)
-// })
+app.get('/info', (req, res, err) => {
+    Person.countDocuments().then(count => {
+        res.send(`
+    <p>Phone book has info for ${count} people</p>
+    <br/>
+    <p>${new Date(Date.now()).toUTCString()}</p>
+    `)
+    }).catch(err => next(err))
+
+})
 
 app.put('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
